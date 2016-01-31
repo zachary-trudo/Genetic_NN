@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
 
 #define BOARDSIZE 4
 
@@ -24,17 +26,17 @@ typedef struct GameBoardTag
 void InitBoard(GameBoard *theBoard);
 
 void SetSquareValue(GameBoard *theBoard, int value, int x, int y);
-void SetRandSquareValue(GameBoard *theBoard, int value);
+void SetRandSquareValue(GameBoard *theBoard);
 
 void MoveBoardLeft(GameBoard *theBoard);
 void MoveBoardRight(GameBoard *theBoard);
 void MoveBoardUp(GameBoard *theBoard);
 void MoveBoardDown(GameBoard *theBoard);
 
-void MoveLeft(GameBoard *theBoard);
-void MoveRight(GameBoard *theBoard);
-void MoveUp(GameBoard *theBoard);
-void MoveDown(GameBoard *theBoard);
+void MoveLeft(GameBoard *theBoard, int x, int y, bool combined);
+void MoveRight(GameBoard *theBoard, int x, int y, bool combined);
+void MoveUp(GameBoard *theBoard, int x, int y, bool combined);
+void MoveDown(GameBoard *theBoard, int x, int y, bool combined);
 
-void CheckIfLoss(GameBoard *theBoard);
+bool CheckIfLoss(GameBoard *theBoard);
 
