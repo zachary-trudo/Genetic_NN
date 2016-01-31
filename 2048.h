@@ -1,58 +1,40 @@
-#include "2048.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-void InitGameSquare(GameSquare *theSquare)
+#define BOARDSIZE 4
+
+int GetRand()
 {
-    theSquare = (GameSquare) malloc(sizeof(GameSquare));
-    theSquare.value = -1;
+    return rand() % (BOARDSIZE - 1);
 }
 
-void InitBoard(GameBoard *theBoard)
+typedef struct GameSquareTag
 {
-    int i = 0;
-    int j = 0;
+    int value;
+} GameSquare;
 
-    theBoard = (GameBoard *) malloc(sizeof(GameBoard));
+void InitGameSquare(GameSquare *theSquare);
 
-    for (i = 0; i < BOARDSIZE; i++)
-    {
-        for(j=0; j < BOARDSIZE; j++)
-        {
-            InitGameSquare(&theBoard.board[i][j]);
-        }
-    }
-
-    SetRandSquareValue(theBoard, 2);
-    SetRandSquareValue(theBoard, 2);
-}
-
-void setRandSquareValue(GameBoard *theBoard, int value)
+typedef struct GameBoardTag
 {
-    int x = GetRand();
-    int y = GetRand();
+    GameSquare** board;
+    int score;
+} GameBoard;
 
-    if (theBoard.board[x][y].value == -1)
-    {
-        if (rand() % 10 == 0)
-        {
-            theBoard.board[x][y] 
+void InitBoard(GameBoard *theBoard);
 
-void SetSquareValue(GameBoard *TheBoard, int value, int x, int y);
-{
-    theBoard.board[x][y].value = value;
-}
+void SetSquareValue(GameBoard *theBoard, int value, int x, int y);
+void SetRandSquareValue(GameBoard *theBoard, int value);
 
+void MoveBoardLeft(GameBoard *theBoard);
+void MoveBoardRight(GameBoard *theBoard);
+void MoveBoardUp(GameBoard *theBoard);
+void MoveBoardDown(GameBoard *theBoard);
 
-void MoveLeft(GameBoard *theBoard)
-{
-    int i = 1;
-    int j = 1;
-
-    
-
+void MoveLeft(GameBoard *theBoard);
 void MoveRight(GameBoard *theBoard);
 void MoveUp(GameBoard *theBoard);
 void MoveDown(GameBoard *theBoard);
 
 void CheckIfLoss(GameBoard *theBoard);
-
 
