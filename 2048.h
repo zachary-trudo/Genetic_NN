@@ -5,10 +5,7 @@
 
 #define BOARDSIZE 4
 
-int GetRand()
-{
-    return rand() % (BOARDSIZE - 1);
-}
+int GetRand();
 
 typedef struct GameSquareTag
 {
@@ -40,3 +37,4 @@ void MoveDown(GameBoard *theBoard, int x, int y, bool combined);
 
 bool CheckIfLoss(GameBoard *theBoard);
 
+void PrintBoard(GameBoard* theBoard);

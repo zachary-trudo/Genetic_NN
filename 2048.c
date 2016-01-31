@@ -1,24 +1,24 @@
 #include "2048.h"
 
-void InitGameSquare(GameSquare *theSquare)
+int GetRand()
 {
-    theSquare = (GameSquare *) malloc(sizeof(GameSquare));
-    theSquare->value = -1;
+    return rand() % (BOARDSIZE - 1);
 }
+
 
 void InitBoard(GameBoard *theBoard)
 {
     int i = 0;
     int j = 0;
 
-    theBoard = (GameBoard *) malloc(sizeof(GameBoard));
     theBoard->board = (GameSquare **) malloc(sizeof(GameSquare*) * BOARDSIZE);
 
     for (i = 0; i < BOARDSIZE; i++)
     {
+        theBoard->board[i] = (GameSquare *) malloc(sizeof(GameSquare));
         for(j = 0; j < BOARDSIZE; j++)
         {
-            InitGameSquare(&theBoard->board[i][j]);
+            theBoard->board[i][j].value = -1;
         }
     }
 
@@ -71,7 +71,8 @@ void MoveBoardLeft(GameBoard *theBoard)
         
 }
 
-
+// All the movement functions are based off of this one.
+// Any comments made here can probably be applied there as well.
 void MoveLeft(GameBoard *theBoard, int x, int y, bool combined)
 {
     if(x == 0 || theBoard->board[x][y].value == -1)
@@ -80,16 +81,26 @@ void MoveLeft(GameBoard *theBoard, int x, int y, bool combined)
     }
     else
     {
+        // These two variables are  mostly cause I'm lazy and 
+        // didn't want to type the brackets.
+        // I think it also helps visibility in what is going on. 
         GameSquare *previousSquare = &theBoard->board[x-1][y];
         GameSquare *currentSquare  = &theBoard->board[x][y];
+
+        // If the square is empty - just move the current square into it.
         if (previousSquare->value == -1)
         {
+            // FIXME: Should probably be done using a setter function.
             previousSquare->value = currentSquare->value;
             currentSquare->value = -1;
             MoveLeft(theBoard, x-1, y, combined);
         }
+        // FIXME: There is actually a case not handled here where a combined 
+        // Square could be combined again... I'm going to leave it for now
+        // as it doesn't really matter. 
         else if( previousSquare->value == currentSquare->value && !combined)
         {
+            // FIXME: This should probably be done using the setter function.
             previousSquare->value = previousSquare->value * 2;
             theBoard->score += previousSquare->value;
             
@@ -177,7 +188,7 @@ void MoveUp(GameBoard *theBoard, int x, int y, bool combined)
         {
             previousSquare->value = currentSquare->value;
             currentSquare->value = -1;
-            MoveRight(theBoard, x, y - 1, combined);
+            MoveUp(theBoard, x, y - 1, combined);
         }
         else if( previousSquare->value == currentSquare->value && !combined)
         {
@@ -187,7 +198,7 @@ void MoveUp(GameBoard *theBoard, int x, int y, bool combined)
             currentSquare->value = -1;
             
             combined = true;
-            MoveRight(theBoard, x, y - 1, combined);
+            MoveUp(theBoard, x, y - 1, combined);
         }
     }
     return;
@@ -223,7 +234,7 @@ void MoveDown(GameBoard *theBoard, int x, int y, bool combined)
         {
             previousSquare->value = currentSquare->value;
             currentSquare->value = -1;
-            MoveRight(theBoard, x, y + 1, combined);
+            MoveDown(theBoard, x, y + 1, combined);
         }
         else if( previousSquare->value == currentSquare->value && !combined)
         {
@@ -233,7 +244,7 @@ void MoveDown(GameBoard *theBoard, int x, int y, bool combined)
             currentSquare->value = -1;
 
             combined = true;
-            MoveRight(theBoard, x, y + 1, combined);
+            MoveDown(theBoard, x, y + 1, combined);
         }
     }
 }
@@ -258,11 +269,18 @@ bool CheckIfLoss(GameBoard *theBoard)
 }
 
 
+// Only used for testing. Definitely don't use this for anything else. 
+void PrintBoard(GameBoard* theBoard)
+{
+    int i = 0;
+    int j = 0;
 
-
-
-
-
-
-
-
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+            printf("%d ", theBoard->board[i][j].value);
+        }
+        printf("\n");
+    }
+}
