@@ -14,39 +14,52 @@ int main(int argc, char* args[])
     char Dir = '\0';
 
 
-    GameBoard * theBoard;
+    GameBoard *theBoard;
     theBoard = (GameBoard *) malloc(sizeof(GameBoard));
-  
+
     InitBoard(theBoard);
 
 
     PrintBoard(theBoard);
     while (true)
     {
-        printf("\n");
-        scanf("%c", &Dir);
-        printf("\n");
-
-        switch (Dir)
+        while (!CheckForMove(theBoard) &&
+               !CheckForLoss(theBoard)
+              )
         {
-            case 'w':
-                MoveBoardUp(theBoard);
-                break;
-            case 'a':
-                MoveBoardLeft(theBoard);
-                break;
-            case 's':
-                MoveBoardDown(theBoard);
-                break;
-            case 'd':
-                MoveBoardRight(theBoard);
-                break;
-            default:
-                break;
+            printf("\n");
+            scanf("%c", &Dir);
+            printf("\n");
+
+            switch (Dir)
+            {
+                case 'w':
+                    MoveBoardUp(theBoard);
+                    break;
+                case 'a':
+                    MoveBoardLeft(theBoard);
+                    break;
+                case 's':
+                    MoveBoardDown(theBoard);
+                    break;
+                case 'd':
+                    MoveBoardRight(theBoard);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        if(!CheckForLoss(theBoard))
+        {
+            SetRandSquareValue(theBoard);
+        }
+        else
+        {
+            break;
         }
         PrintBoard(theBoard);
     }
-
-
+        PrintBoard(theBoard);
 
 }

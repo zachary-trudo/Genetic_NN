@@ -10,9 +10,14 @@ int GetRand();
 typedef struct GameSquareTag
 {
     int value;
+    bool merged;
+    bool moved;
 } GameSquare;
 
 void InitGameSquare(GameSquare *theSquare);
+void MergeGameSquare(GameSquare *theSquare);
+void MoveSquare(GameSquare *theSquare, int value, bool merged);
+void RemoveMovement(GameSquare *theSquare);
 
 typedef struct GameBoardTag
 {
@@ -30,11 +35,12 @@ void MoveBoardRight(GameBoard *theBoard);
 void MoveBoardUp(GameBoard *theBoard);
 void MoveBoardDown(GameBoard *theBoard);
 
-void MoveLeft(GameBoard *theBoard, int x, int y, bool combined);
-void MoveRight(GameBoard *theBoard, int x, int y, bool combined);
-void MoveUp(GameBoard *theBoard, int x, int y, bool combined);
-void MoveDown(GameBoard *theBoard, int x, int y, bool combined);
+void MoveLeft(GameBoard *theBoard, int x, int y);
+void MoveRight(GameBoard *theBoard, int x, int y);
+void MoveUp(GameBoard *theBoard, int x, int y);
+void MoveDown(GameBoard *theBoard, int x, int y);
 
-bool CheckIfLoss(GameBoard *theBoard);
+bool CheckForLoss(GameBoard *theBoard);
+bool CheckForMove(GameBoard *theBoard);
 
 void PrintBoard(GameBoard* theBoard);

@@ -2,9 +2,35 @@
 
 int GetRand()
 {
-    return rand() % (BOARDSIZE - 1);
+    return rand() % (BOARDSIZE);
 }
 
+void InitGameSquare(GameSquare *theSquare)
+{
+    theSquare->value  = -1;
+    theSquare->merged = false;
+    theSquare->moved  = false;
+}
+
+void MergeGameSquare(GameSquare *theSquare)
+{
+    theSquare->value *= theSquare->value;
+    theSquare->merged = true;
+    theSquare->moved  = true;
+}
+
+void MoveSquare(GameSquare *theSquare, int value, bool merged)
+{
+    theSquare->value  = value;
+    theSquare->merged = merged;
+    theSquare->moved  = true;
+}
+
+void RemoveMovement(GameSquare *theSquare)
+{
+    theSquare->merged = false;
+    theSquare->moved = false;
+}
 
 void InitBoard(GameBoard *theBoard)
 {
@@ -12,13 +38,24 @@ void InitBoard(GameBoard *theBoard)
     int j = 0;
 
     theBoard->board = (GameSquare **) malloc(sizeof(GameSquare*) * BOARDSIZE);
+    if(theBoard->board == NULL)
+    {
+        fprintf(stderr, "Didn't allocate Memory for some damnable reason");
+        exit(1234);
+    }
 
     for (i = 0; i < BOARDSIZE; i++)
     {
-        theBoard->board[i] = (GameSquare *) malloc(sizeof(GameSquare));
+        theBoard->board[i] = (GameSquare *) malloc(sizeof(GameSquare) * BOARDSIZE);
+        if(theBoard->board[i] == NULL)
+        {
+            fprintf(stderr, "Didn't allocate Memory for some damnable reason");
+            exit(1235);
+        }
+
         for(j = 0; j < BOARDSIZE; j++)
         {
-            theBoard->board[i][j].value = -1;
+            InitGameSquare(&theBoard->board[i][j]);
         }
     }
 
@@ -58,24 +95,23 @@ void SetRandSquareValue(GameBoard *theBoard)
 
 void MoveBoardLeft(GameBoard *theBoard)
 {
-    int i = 1;
-    int j = 0;
+    int i = 0;
+    int j = 1;
 
-    for (i = 1; i < BOARDSIZE; i++)
+    for (i = 0; i < BOARDSIZE; i++)
     {
-        for (j = 0; j < BOARDSIZE; j++)
+        for (j = 1; j < BOARDSIZE; j++)
         {
-            MoveLeft(theBoard, i, j, false);
+            MoveLeft(theBoard, i, j);
         }
     }
-        
 }
 
 // All the movement functions are based off of this one.
 // Any comments made here can probably be applied there as well.
-void MoveLeft(GameBoard *theBoard, int x, int y, bool combined)
+void MoveLeft(GameBoard *theBoard, int x, int y)
 {
-    if(x == 0 || theBoard->board[x][y].value == -1)
+    if(y == 0 || theBoard->board[x][y].value == -1)
     {
         return;
     }
@@ -84,30 +120,26 @@ void MoveLeft(GameBoard *theBoard, int x, int y, bool combined)
         // These two variables are  mostly cause I'm lazy and 
         // didn't want to type the brackets.
         // I think it also helps visibility in what is going on. 
-        GameSquare *previousSquare = &theBoard->board[x-1][y];
+        GameSquare *destinationSquare = &theBoard->board[x][y-1];
         GameSquare *currentSquare  = &theBoard->board[x][y];
 
-        // If the square is empty - just move the current square into it.
-        if (previousSquare->value == -1)
+        // If the destination square is empty -
+        // just move the current square into it.
+        if (destinationSquare->value == -1)
         {
-            // FIXME: Should probably be done using a setter function.
-            previousSquare->value = currentSquare->value;
-            currentSquare->value = -1;
-            MoveLeft(theBoard, x-1, y, combined);
+            MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
+            InitGameSquare(currentSquare);
+            MoveLeft(theBoard, x, y-1);
         }
-        // FIXME: There is actually a case not handled here where a combined 
-        // Square could be combined again... I'm going to leave it for now
-        // as it doesn't really matter. 
-        else if( previousSquare->value == currentSquare->value && !combined)
+        else if(destinationSquare->value == currentSquare->value &&
+                !destinationSquare->merged)
         {
-            // FIXME: This should probably be done using the setter function.
-            previousSquare->value = previousSquare->value * 2;
-            theBoard->score += previousSquare->value;
+            MergeGameSquare(destinationSquare);
+            theBoard->score += destinationSquare->value;
             
-            currentSquare->value = -1;
+            InitGameSquare(currentSquare);
             
-            combined = true;
-            MoveLeft(theBoard, x-1, y, combined);
+            MoveLeft(theBoard, x, y-1);
         }
     }
     return;
@@ -115,44 +147,44 @@ void MoveLeft(GameBoard *theBoard, int x, int y, bool combined)
     
 void MoveBoardRight(GameBoard *theBoard)
 {
-    int i = BOARDSIZE - 2;
-    int j = BOARDSIZE - 1;
+    int i = BOARDSIZE - 1;
+    int j = BOARDSIZE - 2;
 
-    for (i = BOARDSIZE - 2; i >= 0; i--)
+    for (i = BOARDSIZE - 1; i >= 0; i--)
     {
-        for (j = BOARDSIZE -1; j >= 0; j--)
+        for (j = BOARDSIZE - 2; j >= 0; j--)
         {
-            MoveRight(theBoard, i, j, false);
+            MoveRight(theBoard, i, j);
         }
     }
 }
 
     
-void MoveRight(GameBoard *theBoard, int x, int y, bool combined)
+void MoveRight(GameBoard *theBoard, int x, int y)
 {
-    if(x == BOARDSIZE -1 || theBoard->board[x][y].value == -1)
+    if(y == BOARDSIZE - 1 || theBoard->board[x][y].value == -1)
     {
         return;
     }
     else
     {
-        GameSquare *previousSquare = &theBoard->board[x+1][y];
+        GameSquare *destinationSquare = &theBoard->board[x][y + 1];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (previousSquare->value == -1)
+        if (destinationSquare->value == -1)
         {
-            previousSquare->value = currentSquare->value;
-            currentSquare->value = -1;
-            MoveRight(theBoard, x+1, y, combined);
+            MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
+            InitGameSquare(currentSquare);
+            MoveRight(theBoard, x, y + 1);
         }
-        else if( previousSquare->value == currentSquare->value && !combined)
+        else if(destinationSquare->value == currentSquare->value &&
+                !destinationSquare->merged)
         {
-            previousSquare->value = previousSquare->value * 2;
-            theBoard->score += previousSquare->value;
-
-            currentSquare->value = -1;
-
-            combined = true;
-            MoveRight(theBoard, x+1, y, combined);
+            MergeGameSquare(destinationSquare);
+            theBoard->score += destinationSquare->value;
+            
+            InitGameSquare(currentSquare);
+            
+            MoveRight(theBoard, x, y + 1);
         }
     }
     return;
@@ -161,44 +193,44 @@ void MoveRight(GameBoard *theBoard, int x, int y, bool combined)
 
 void MoveBoardUp(GameBoard *theBoard)
 {
-    int i = BOARDSIZE - 1;
-    int j = BOARDSIZE - 2;
+    int i = 1;
+    int j = 0;
 
-    for (j = BOARDSIZE - 2; j >= 0; j--)
+    for(i = 1; i < BOARDSIZE; i++)
     {
-        for(i = BOARDSIZE - 1; i >= 0; i--)
+        for (j = 0; j < BOARDSIZE; j++)
         {
-            MoveUp(theBoard, i, j, false);
+            MoveUp(theBoard, i, j);
         }
     }
 }
     
 
-void MoveUp(GameBoard *theBoard, int x, int y, bool combined)
+void MoveUp(GameBoard *theBoard, int x, int y)
 {
-    if(y == 0 || theBoard->board[x][y].value == -1)
+    if(x == 0 || theBoard->board[x][y].value == -1)
     {
         return;
     }
     else
     {
-        GameSquare *previousSquare = &theBoard->board[x][y-1];
+        GameSquare *destinationSquare = &theBoard->board[x-1][y];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (previousSquare->value == -1)
+        if (destinationSquare->value == -1)
         {
-            previousSquare->value = currentSquare->value;
-            currentSquare->value = -1;
-            MoveUp(theBoard, x, y - 1, combined);
+            MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
+            InitGameSquare(currentSquare);
+            MoveUp(theBoard, x-1, y);
         }
-        else if( previousSquare->value == currentSquare->value && !combined)
+        else if(destinationSquare->value == currentSquare->value &&
+                !destinationSquare->merged)
         {
-            previousSquare->value = previousSquare->value * 2;
-            theBoard->score += previousSquare->value;
+            MergeGameSquare(destinationSquare);
+            theBoard->score += destinationSquare->value;
             
-            currentSquare->value = -1;
+            InitGameSquare(currentSquare);
             
-            combined = true;
-            MoveUp(theBoard, x, y - 1, combined);
+            MoveUp(theBoard, x-1, y);
         }
     }
     return;
@@ -207,50 +239,50 @@ void MoveUp(GameBoard *theBoard, int x, int y, bool combined)
 
 void MoveBoardDown(GameBoard *theBoard)
 {
-    int i = 0;
-    int j = 1;
+    int i = BOARDSIZE - 2;
+    int j = BOARDSIZE - 1;
 
-    for (j = 1; j < BOARDSIZE; j++)
+    for (i = BOARDSIZE - 2; i >= 0; i--)
     {
-        for (i = 0; i < BOARDSIZE; i++)
+        for (j = BOARDSIZE - 1; j >= 0; j--)
         {
-            MoveRight(theBoard, i, j, false);
+            MoveDown(theBoard, i, j);
         }
     }
 }
 
 
-void MoveDown(GameBoard *theBoard, int x, int y, bool combined)
+void MoveDown(GameBoard *theBoard, int x, int y)
 {
-    if(y == BOARDSIZE -1 || theBoard->board[x][y].value == -1)
+    if(x == BOARDSIZE -1 || theBoard->board[x][y].value == -1)
     {
         return;
     }
     else
     {
-        GameSquare *previousSquare = &theBoard->board[x][y+1];
+        GameSquare *destinationSquare = &theBoard->board[x+1][y];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (previousSquare->value == -1)
+        if (destinationSquare->value == -1)
         {
-            previousSquare->value = currentSquare->value;
-            currentSquare->value = -1;
-            MoveDown(theBoard, x, y + 1, combined);
+            MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
+            InitGameSquare(currentSquare);
+            MoveDown(theBoard, x+1, y);
         }
-        else if( previousSquare->value == currentSquare->value && !combined)
+        else if(destinationSquare->value == currentSquare->value &&
+                !destinationSquare->merged)
         {
-            previousSquare->value = previousSquare->value * 2;
-            theBoard->score += previousSquare->value;
-
-            currentSquare->value = -1;
-
-            combined = true;
-            MoveDown(theBoard, x, y + 1, combined);
+            MergeGameSquare(destinationSquare);
+            theBoard->score += destinationSquare->value;
+            
+            InitGameSquare(currentSquare);
+            
+            MoveDown(theBoard, x+1, y);
         }
     }
 }
 
 
-bool CheckIfLoss(GameBoard *theBoard)
+bool CheckForLoss(GameBoard *theBoard)
 {
     int i = 0;
     int j = 0;
@@ -268,6 +300,27 @@ bool CheckIfLoss(GameBoard *theBoard)
     return true;
 }
 
+bool CheckForMove(GameBoard *theBoard)
+{
+    bool retVal = false;
+    int i = 0;
+    int j = 0;
+    
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+            if(theBoard->board[i][j].moved)
+            {
+                retVal = true;
+                RemoveMovement(&theBoard->board[i][j]);
+            }
+        }
+    }
+    return retVal;
+}
+
+
 
 // Only used for testing. Definitely don't use this for anything else. 
 void PrintBoard(GameBoard* theBoard)
@@ -279,7 +332,14 @@ void PrintBoard(GameBoard* theBoard)
     {
         for (j = 0; j < BOARDSIZE; j++)
         {
-            printf("%d ", theBoard->board[i][j].value);
+            if( theBoard->board[i][j].value != -1)
+            {
+                printf("%d ", theBoard->board[i][j].value);
+            }
+            else
+            {
+                printf("_  ");
+            }
         }
         printf("\n");
     }
