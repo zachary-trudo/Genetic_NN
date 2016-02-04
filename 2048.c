@@ -1,10 +1,5 @@
 #include "2048.h"
 
-int GetRand()
-{
-    return rand() % (BOARDSIZE);
-}
-
 void InitGameSquare(GameSquare *theSquare)
 {
     theSquare->value  = -1;
@@ -72,8 +67,8 @@ void SetSquareValue(GameBoard *theBoard, int value, int x, int y)
 // If this appears to be causing issues look into making a better function. 
 void SetRandSquareValue(GameBoard *theBoard)
 {
-    int x = GetRand();
-    int y = GetRand();
+    int x = GetRand(BOARDSIZE - 1);
+    int y = GetRand(BOARDSIZE - 1);
 
     if (theBoard->board[x][y].value == -1)
     {
