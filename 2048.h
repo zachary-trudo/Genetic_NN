@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include "commonFuncts.h"
 
 #define BOARDSIZE 4
-
-int GetRand();
 
 typedef struct GameSquareTag
 {
