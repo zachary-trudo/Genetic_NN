@@ -4,3 +4,4 @@
 .main.c.swp
 .neuralNet.c.swp
 a.out
+.*swp
