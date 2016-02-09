@@ -143,3 +143,35 @@ void setLayerNodes(Layer* layer, Node** nodes)
 }
 
 
+Topo* TopoCon(int numLayers, int** nodesPerLayer)
+{
+    int i = 0;
+    Topo* theTopo = (Topo*) malloc(sizeof(Topo));
+
+    theTopo->numLayers = numLayers;
+    theTopo->nodesPerLayer = (int**) malloc(sizeof(int*) * numLayers);
+
+    for (i = 0; i < numLayers; i++)
+    {
+        theTopo->nodesPerLayer[i] = (int*) malloc(sizeof(int));
+        *(theTopo->nodesPerLayer[i]) = 
+
+
+Net* netCon(Topo topology)
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
