@@ -1,7 +1,7 @@
 #include "neuralNet.h"
 
 
-Node* NodeCon(int numConnects, int** weights)
+Node* NodeCon(int numConnects, double** weights)
 {
     Node *newNode;
     newNode = (Node *) malloc(sizeof(Node));
@@ -15,7 +15,7 @@ Node* NodeRandCon(int numConnects)
 {
     Node *newNode;
     newNode = (Node *) malloc(sizeof(Node));
-    int** weights = getRandWeights(numConnects);
+    double** weights = getRandWeights(numConnects);
     
     setNodeConnects(newNode, numConnects);
     setNodeWeights(newNode, weights);
@@ -34,16 +34,16 @@ void deconNode(Node* node)
 }
 
 
-int** getRandWeights(int numConnects)
+double** getRandWeights(int numConnects)
 {
     int i = 0;
-    int** weights;
-    weights = (int**) malloc(sizeof(int*) * numConnects);
+    double** weights;
+    weights = (double**) malloc(sizeof(double*) * numConnects);
 
     for (i = 0; i < numConnects; i++)
     {
-        weights[i] = (int*) malloc(sizeof(int));
-        weights[i] = tanh(GetRand(100));
+        weights[i] = (double*) malloc(sizeof(double));
+        *weights[i] = tanh(GetRand(100));
     }
     return weights;
 }
@@ -55,14 +55,14 @@ void setNodeConnects(Node* node, int numConnects)
 }
 
 
-void setNodeWeights(Node* node, int** weights)
+void setNodeWeights(Node* node, double** weights)
 {
     int i = 0;
-    node->weights = (int**) malloc(sizeof(int*) * node->numConnects);
+    node->weights = (double**) malloc(sizeof(double*) * node->numConnects);
 
     for(i = 0; i < node->numConnects; i++)
     {
-        node->weights[i] = (int*) malloc(sizeof(int));
+        node->weights[i] = (double*) malloc(sizeof(double));
         node->weights[i] = weights[i];
     }
 }
@@ -74,7 +74,7 @@ int getNodeConnects(Node* node)
 }
 
 
-int** getNodeWeights(Node* node)
+double** getNodeWeights(Node* node)
 {
     return node->weights;
 }

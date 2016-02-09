@@ -7,20 +7,20 @@
 typedef struct NodeTag
 {
     int numConnects;
-    int** weights;
+    double** weights;
 } Node;
 
 
-Node* NodeCon(int numConnects, int** weights);
+Node* NodeCon(int numConnects, double** weights);
 Node* NodeRandCon(int numConnects);
 
 void deconNode(Node* node);
 
-int** getRandWeights(int numConnects);
+double** getRandWeights(int numConnects);
 void setNodeConnects(Node* node, int numConnects);
-void setNodeWeights(Node* node, int** weights);
+void setNodeWeights(Node* node, double** weights);
 int getNodeConnects(Node* node);
-int** getNodeWeights(Node* node);
+double** getNodeWeights(Node* node);
 
 typedef struct LayerTag
 {
@@ -42,4 +42,15 @@ typedef struct NetTag
     Layer** theNet;
 
 } Net;
-    
+
+
+Net* NetCon(int** topology);
+Net* NetConWeights(int** topology, double*** weights);
+
+void NetDecon(Net* theNet);
+
+// Deep Copy
+Net* CopyNet(Net* theNet);
+
+int getOutput(int** input);
+
