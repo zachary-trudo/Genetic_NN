@@ -37,15 +37,6 @@ void setLayerNextNodes(Layer* layer, int nextLayerNodes);
 
 void setLayerNodes(Layer* layer, Node** nodes);
 
-typedef struct TopoTag
-{
-    int numLayers;
-    int** nodesPerLayer;
-} Topo;
-
-Topo* TopoCon(int numLayers, int** nodesPerLayer);
-
-void TopoDecon(Topo* theTopology);
 
 typedef struct NetTag
 {
@@ -54,7 +45,7 @@ typedef struct NetTag
 } Net;
 
 
-Net* NetCon(Topo topology);
+Net* NetCon(int numLayers, int** nodesPerLayerTopo topology);
 Net* NetConWeights(int** topology, double*** weights);
 
 void NetDecon(Net* theNet);
@@ -62,6 +53,7 @@ void NetDecon(Net* theNet);
 // Deep Copy
 Net* CopyNet(Net* theNet);
 
+void feedForward(Net* theNet, int** inputs);
 int getOutput(int** input);
 
 
