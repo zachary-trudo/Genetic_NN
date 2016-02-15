@@ -80,42 +80,39 @@ double** getNodeWeights(Node* node)
 }
 
 
-Layer* LayerCon(Node** nodes, int numNodes, int nextLayerNodes)
+Layer* LayerCon(int numNodes, int nextLayerNodes, int*** weights)
 {
-    Layer* layer;
-    layer = (Layer *) malloc(sizeof(Layer));
-    
-    setLayerNumNodes(layer, numNodes);
-    setLayerNodes(layer, nodes);
-    setLayerNextNodes(layer, nextLayerNodes);
-    return layer;
+  Layer* layer;
+  layer = (Layer *) malloc(sizeof(Layer));
+
+  setLayerNumNodes(layer, numNodes);
+  setLayerNodes(layer, nodes);
+  setLayerNextNodes(layer, nextLayerNodes);
+  return layer;
 }
 
 
 Layer* LayerRandCon(int numNodes, int nextLayerNodes)
 {
-    int i = 0;
-    Layer* layer;
-    layer = (Layer *) malloc(sizeof(Layer));
-    setLayerNumNodes(layer, numNodes);
-    setLayerNextNodes(layer, nextLayerNodes);
-    
-    Node** nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
+  int i = 0;
+  Layer* layer;
+  layer = (Layer *) malloc(sizeof(Layer));
+  setLayerNumNodes(layer, numNodes);
+  setLayerNextNodes(layer, nextLayerNodes);
 
-    for (i = 0; i < layer->numNodes; i++)
-    {
-        nodes[i] = NodeRandCon(layer->nextLayerNodes);
-    }
+  Node** nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
 
-    setLayerNodes(layer, nodes);
-    
-    for( i = 0; i < layer->numNodes; i++)
-    {
-        deconNode(nodes[i]);
-    }
-    free(nodes);
+  for (i = 0; i < layer->numNodes; i++)
+    nodes[i] = NodeRandCon(layer->nextLayerNodes);
 
-    return layer;
+  setLayerNodes(layer, nodes);
+
+  for( i = 0; i < layer->numNodes; i++)
+    deconNode(nodes[i]);
+
+  free(nodes);
+
+  return layer;
 }
 
 
@@ -131,21 +128,37 @@ void setLayerNextNodes(Layer* layer, int nextLayerNodes)
 }
 
 
-void setLayerNodes(Layer* layer, Node** nodes)
+void setLayerNodes(Layer* layer)
 {
     int i = 0;
     layer->nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
 
     for(i = 0; i < layer->numNodes; i++)
-    {
-        layer->nodes[i] = NodeCon(nodes[i]->numConnects, nodes[i]->weights);
-    }
+      layer->nodes[i] = NodeCon(nodes[i]->numConnects, nodes[i]->weights);
 }
 
 
 Net* netCon(int numLayers, int** nodesPerLayer)
 {
+  int i = 0;
+  Net *theNet = (Net *) malloc(sizeof(Net));
+  theNet->numLayers = numLayers;
+  theNet->theLayers = (Layer**) malloc(sizeof(Layer*) * numLayers);
 
+  for (i = 0; i < numLayers; i++)
+  {
+    if (i + 1 < numLayers)
+      theNet->theLayers[i] = LayerRandCon(nodesPerLayer[i], nodesPerLayer[i + 1]);
+    else
+      theNet->theLayers[i] = LayerRandCon(nodesperLayer[i], 0);
+  }
+
+  return theNet;
+}
+
+
+Net* NetConWithWeights(int numLayers, int** nodesPerLayer, double*** weights)
+{
 
 
 

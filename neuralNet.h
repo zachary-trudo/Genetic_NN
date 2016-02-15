@@ -40,13 +40,14 @@ void setLayerNodes(Layer* layer, Node** nodes);
 
 typedef struct NetTag
 {
-    Layer** theNet;
+    Layer** theLayers;
+    int numLayers;
 
 } Net;
 
 
-Net* NetCon(int numLayers, int** nodesPerLayerTopo topology);
-Net* NetConWeights(int** topology, double*** weights);
+Net* NetCon(int numLayers, int** nodesPerLayer);
+Net* NetConWeights(int numLayers, int** nodesPerLayer, double**** weights);
 
 void NetDecon(Net* theNet);
 
