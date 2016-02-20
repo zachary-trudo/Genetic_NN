@@ -2,14 +2,14 @@
 
 void InitGameSquare(GameSquare *theSquare)
 {
-    theSquare->value  = -1;
+    theSquare->value  = 1;
     theSquare->merged = false;
     theSquare->moved  = false;
 }
 
 void MergeGameSquare(GameSquare *theSquare)
 {
-    theSquare->value *= theSquare->value;
+    theSquare->value += theSquare->value;
     theSquare->merged = true;
     theSquare->moved  = true;
 }
@@ -70,7 +70,7 @@ void SetRandSquareValue(GameBoard *theBoard)
     int x = GetRand(BOARDSIZE - 1);
     int y = GetRand(BOARDSIZE - 1);
 
-    if (theBoard->board[x][y].value == -1)
+    if (theBoard->board[x][y].value == 1)
     {
         if (rand() % 10 == 0)
         {
@@ -106,7 +106,7 @@ void MoveBoardLeft(GameBoard *theBoard)
 // Any comments made here can probably be applied there as well.
 void MoveLeft(GameBoard *theBoard, int x, int y)
 {
-    if(y == 0 || theBoard->board[x][y].value == -1)
+    if(y == 0 || theBoard->board[x][y].value == 1)
     {
         return;
     }
@@ -120,7 +120,7 @@ void MoveLeft(GameBoard *theBoard, int x, int y)
 
         // If the destination square is empty -
         // just move the current square into it.
-        if (destinationSquare->value == -1)
+        if (destinationSquare->value == 1)
         {
             MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
             InitGameSquare(currentSquare);
@@ -157,7 +157,7 @@ void MoveBoardRight(GameBoard *theBoard)
     
 void MoveRight(GameBoard *theBoard, int x, int y)
 {
-    if(y == BOARDSIZE - 1 || theBoard->board[x][y].value == -1)
+    if(y == BOARDSIZE - 1 || theBoard->board[x][y].value == 1)
     {
         return;
     }
@@ -165,7 +165,7 @@ void MoveRight(GameBoard *theBoard, int x, int y)
     {
         GameSquare *destinationSquare = &theBoard->board[x][y + 1];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (destinationSquare->value == -1)
+        if (destinationSquare->value == 1)
         {
             MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
             InitGameSquare(currentSquare);
@@ -203,7 +203,7 @@ void MoveBoardUp(GameBoard *theBoard)
 
 void MoveUp(GameBoard *theBoard, int x, int y)
 {
-    if(x == 0 || theBoard->board[x][y].value == -1)
+    if(x == 0 || theBoard->board[x][y].value == 1)
     {
         return;
     }
@@ -211,7 +211,7 @@ void MoveUp(GameBoard *theBoard, int x, int y)
     {
         GameSquare *destinationSquare = &theBoard->board[x-1][y];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (destinationSquare->value == -1)
+        if (destinationSquare->value == 1)
         {
             MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
             InitGameSquare(currentSquare);
@@ -249,7 +249,7 @@ void MoveBoardDown(GameBoard *theBoard)
 
 void MoveDown(GameBoard *theBoard, int x, int y)
 {
-    if(x == BOARDSIZE -1 || theBoard->board[x][y].value == -1)
+    if(x == BOARDSIZE -1 || theBoard->board[x][y].value == 1)
     {
         return;
     }
@@ -257,7 +257,7 @@ void MoveDown(GameBoard *theBoard, int x, int y)
     {
         GameSquare *destinationSquare = &theBoard->board[x+1][y];
         GameSquare *currentSquare  = &theBoard->board[x][y];
-        if (destinationSquare->value == -1)
+        if (destinationSquare->value == 1)
         {
             MoveSquare(destinationSquare, currentSquare->value, currentSquare->merged);
             InitGameSquare(currentSquare);
@@ -286,7 +286,7 @@ bool CheckForLoss(GameBoard *theBoard)
     {
         for (j = 0; j < BOARDSIZE; j++)
         {
-            if(theBoard->board[i][j].value == -1)
+            if(theBoard->board[i][j].value == 1)
             {
                 return false;
             }
@@ -327,7 +327,7 @@ void PrintBoard(GameBoard* theBoard)
     {
         for (j = 0; j < BOARDSIZE; j++)
         {
-            if( theBoard->board[i][j].value != -1)
+            if( theBoard->board[i][j].value != 1)
             {
                 printf("%d ", theBoard->board[i][j].value);
             }
@@ -339,3 +339,37 @@ void PrintBoard(GameBoard* theBoard)
         printf("\n");
     }
 }
+
+double** getBoardOutput(GameBoard* theBoard)
+{
+    double** output = (double**) malloc(sizeof(double) * 16);
+
+    int i = 0;
+    int j = 0;
+    int counter = 0;
+
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+            output[counter] = (double *) malloc(sizeof(double));
+            *output[counter] = log2((double) theBoard->board[i][j].value);
+            counter++;
+        }
+    }
+    counter--;
+    
+    double max = *output[0];
+
+    for(i = 1; i <= counter; i++)
+    {
+        if(max < *output[i])
+            max = *output[i];
+    }
+
+    for(i = 0; i <= counter ; i++)
+        *output[i] /= max;
+
+    return output;
+}
+    

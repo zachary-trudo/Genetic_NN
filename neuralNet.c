@@ -80,13 +80,13 @@ double** getNodeWeights(Node* node)
 }
 
 
-Layer* LayerCon(int numNodes, int nextLayerNodes, int*** weights)
+Layer* LayerCon(int numNodes, int nextLayerNodes, double*** weights)
 {
   Layer* layer;
   layer = (Layer *) malloc(sizeof(Layer));
 
   setLayerNumNodes(layer, numNodes);
-  setLayerNodes(layer, nodes);
+  setLayerNodes(layer, weights);
   setLayerNextNodes(layer, nextLayerNodes);
   return layer;
 }
@@ -100,17 +100,10 @@ Layer* LayerRandCon(int numNodes, int nextLayerNodes)
   setLayerNumNodes(layer, numNodes);
   setLayerNextNodes(layer, nextLayerNodes);
 
-  Node** nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
-
+  layer->nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
+  
   for (i = 0; i < layer->numNodes; i++)
-    nodes[i] = NodeRandCon(layer->nextLayerNodes);
-
-  setLayerNodes(layer, nodes);
-
-  for( i = 0; i < layer->numNodes; i++)
-    deconNode(nodes[i]);
-
-  free(nodes);
+    layer->nodes[i] = NodeRandCon(layer->nextLayerNodes);
 
   return layer;
 }
@@ -128,17 +121,17 @@ void setLayerNextNodes(Layer* layer, int nextLayerNodes)
 }
 
 
-void setLayerNodes(Layer* layer)
+void setLayerNodes(Layer* layer, double*** weights)
 {
     int i = 0;
     layer->nodes = (Node**) malloc(sizeof(Node*) * layer->numNodes);
 
     for(i = 0; i < layer->numNodes; i++)
-      layer->nodes[i] = NodeCon(nodes[i]->numConnects, nodes[i]->weights);
+      layer->nodes[i] = NodeCon(layer->nextLayerNodes, weights[i]);
 }
 
 
-Net* netCon(int numLayers, int** nodesPerLayer)
+Net* NetCon(int numLayers, int** nodesPerLayer)
 {
   int i = 0;
   Net *theNet = (Net *) malloc(sizeof(Net));
@@ -148,18 +141,69 @@ Net* netCon(int numLayers, int** nodesPerLayer)
   for (i = 0; i < numLayers; i++)
   {
     if (i + 1 < numLayers)
-      theNet->theLayers[i] = LayerRandCon(nodesPerLayer[i], nodesPerLayer[i + 1]);
+      theNet->theLayers[i] = LayerRandCon(*nodesPerLayer[i], *nodesPerLayer[i + 1]);
     else
-      theNet->theLayers[i] = LayerRandCon(nodesperLayer[i], 0);
+      theNet->theLayers[i] = LayerRandCon(*nodesPerLayer[i], 0);
   }
 
   return theNet;
 }
 
 
-Net* NetConWithWeights(int numLayers, int** nodesPerLayer, double*** weights)
+Net* NetConWithWeights(int numLayers, int** nodesPerLayer, double**** weights)
 {
+    int i = 0;
+    Net *theNet = (Net *) malloc(sizeof(Net));
+    theNet->numLayers = numLayers;
+    theNet->theLayers = (Layer **) malloc(sizeof(Layer*) * numLayers);
 
+    for (i = 0; i < numLayers; i++)
+    {
+        if (i + 1 < numLayers)
+            theNet->theLayers[i] = LayerCon(*nodesPerLayer[i], *nodesPerLayer[i + 1], weights[i]);
+        else
+            theNet->theLayers[i] = LayerCon(1, 0, weights[i]);
+    }
+    return theNet;
+}
+
+
+void feedForward(Net* theNet, double** inputs)
+{
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    
+    // FIXME: We're assuming that inputs will be the correct number of doubles.
+    for(i = 0; i < theNet->theLayers[0]->numNodes; i++)
+        theNet->theLayers[0]->nodes[i]->value = *(inputs[i]);
+
+    for(i = 0; i < theNet->numLayers - 1; i++)
+    {
+        Layer* curLayer = theNet->theLayers[i];
+        Layer* nextLayer = theNet->theLayers[i + 1];
+        for(j = 0; j < curLayer->numNodes; j++)
+        {
+            Node* curNode = curLayer->nodes[j];
+            for(k = 0; k < curNode->numConnects; k++)
+            {
+                nextLayer->nodes[k]->value += tanh(curNode->value * *(curNode->weights[k]));
+            }
+        }
+    }
+}
+
+double getNetOutput(Net* theNet)
+{
+    return tanh(theNet->theLayers[theNet->numLayers - 1]->nodes[0]->value);
+}
+
+
+
+
+
+
+                
 
 
 

@@ -5,3 +5,5 @@
 .neuralNet.c.swp
 a.out
 .*swp
+nnet
+*\.o

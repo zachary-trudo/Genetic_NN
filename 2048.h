@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
+
 #include "commonFuncts.h"
 
 #define BOARDSIZE 4
@@ -42,3 +44,4 @@ bool CheckForLoss(GameBoard *theBoard);
 bool CheckForMove(GameBoard *theBoard);
 
 void PrintBoard(GameBoard* theBoard);
+double** getBoardOutput(GameBoard* theBoard);

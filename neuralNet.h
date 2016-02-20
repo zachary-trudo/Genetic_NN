@@ -1,3 +1,6 @@
+#ifndef __NEURAL_NET_H__
+#define __NEURAL_NET_H__
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,6 +11,7 @@ typedef struct NodeTag
 {
     int numConnects;
     double** weights;
+    double value;
 } Node;
 
 
@@ -29,13 +33,13 @@ typedef struct LayerTag
     int nextLayerNodes;
 } Layer;
 
-Layer* LayerCon(Node** nodes, int numNodes, int nextLayerNodes);
+Layer* LayerCon(int numNodes, int nextLayerNodes, double*** weights);
 Layer* LayerRandCon(int numNodes, int nextLayerNodes);
 
 void setLayerNumNodes(Layer* layer, int numNodes);
 void setLayerNextNodes(Layer* layer, int nextLayerNodes);
 
-void setLayerNodes(Layer* layer, Node** nodes);
+void setLayerNodes(Layer* layer, double*** weights);
 
 
 typedef struct NetTag
@@ -54,14 +58,6 @@ void NetDecon(Net* theNet);
 // Deep Copy
 Net* CopyNet(Net* theNet);
 
-void feedForward(Net* theNet, int** inputs);
-int getOutput(int** input);
-
-
-
-
-
-
-
-
-
+void feedForward(Net* theNet, double** inputs);
+double getNetOutput(Net* theNet);
+#endif
