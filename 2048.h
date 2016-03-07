@@ -26,9 +26,15 @@ typedef struct GameBoardTag
 } GameBoard;
 
 void InitBoard(GameBoard *theBoard);
+void ReInitBoard(GameBoard *theBoard);
+void DeconBoard(GameBoard *theBoard);
+
+void ReInitBoard(GameBoard *theBoard);
 
 void SetSquareValue(GameBoard *theBoard, int value, int x, int y);
 void SetRandSquareValue(GameBoard *theBoard);
+
+void MoveBoard(GameBoard *theBoard, double theDir);
 
 void MoveBoardLeft(GameBoard *theBoard);
 void MoveBoardRight(GameBoard *theBoard);
@@ -42,6 +48,9 @@ void MoveDown(GameBoard *theBoard, int x, int y);
 
 bool CheckForLoss(GameBoard *theBoard);
 bool CheckForMove(GameBoard *theBoard);
+void ClearMovement(GameBoard *theBoard);
+
 
 void PrintBoard(GameBoard* theBoard);
 double** getBoardOutput(GameBoard* theBoard);
+void freeBoardOutput(double** output);

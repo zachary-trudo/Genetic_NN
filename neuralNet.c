@@ -16,6 +16,9 @@ Node* NodeRandCon(int numConnects)
     Node *newNode;
     newNode = (Node *) malloc(sizeof(Node));
     double** weights = getRandWeights(numConnects);
+
+    newNode->onThreshhold = (double) rand() / (double) RAND_MAX;
+    
     
     setNodeConnects(newNode, numConnects);
     setNodeWeights(newNode, weights);
@@ -43,7 +46,9 @@ double** getRandWeights(int numConnects)
     for (i = 0; i < numConnects; i++)
     {
         weights[i] = (double*) malloc(sizeof(double));
-        *weights[i] = tanh(GetRand(100));
+        *weights[i] = (double) rand() / (double)RAND_MAX;
+        if (GetRand(100) < 50)
+          *weights[i] *= (-1);
     }
     return weights;
 }
@@ -95,8 +100,7 @@ Layer* LayerCon(int numNodes, int nextLayerNodes, double*** weights)
 Layer* LayerRandCon(int numNodes, int nextLayerNodes)
 {
   int i = 0;
-  Layer* layer;
-  layer = (Layer *) malloc(sizeof(Layer));
+  Layer* layer = (Layer *) malloc(sizeof(Layer));
   setLayerNumNodes(layer, numNodes);
   setLayerNextNodes(layer, nextLayerNodes);
 
@@ -173,6 +177,7 @@ void feedForward(Net* theNet, double** inputs)
     int i = 0;
     int j = 0;
     int k = 0;
+    int numConnects = 0;
     
     // FIXME: We're assuming that inputs will be the correct number of doubles.
     for(i = 0; i < theNet->theLayers[0]->numNodes; i++)
@@ -182,39 +187,41 @@ void feedForward(Net* theNet, double** inputs)
     {
         Layer* curLayer = theNet->theLayers[i];
         Layer* nextLayer = theNet->theLayers[i + 1];
+        for(j = 0; j < nextLayer->numNodes; j++)
+          nextLayer->nodes[j]->value = 0;
         for(j = 0; j < curLayer->numNodes; j++)
         {
             Node* curNode = curLayer->nodes[j];
-            for(k = 0; k < curNode->numConnects; k++)
+            if (curNode->onThreshhold < curNode->value)
             {
-                nextLayer->nodes[k]->value += tanh(curNode->value * *(curNode->weights[k]));
+              numConnects = curNode->numConnects;
+
+              for(k = 0; k < numConnects; k++)
+              {
+                  nextLayer->nodes[k]->value += (double)curNode->value * (double)*(curNode->weights[k]);
+              }
             }
         }
+//        for(j = 0; j < nextLayer->numNodes; j++)
+//          nextLayer->nodes[j]->value /= numConnects;
     }
 }
 
 double getNetOutput(Net* theNet)
 {
-    return tanh(theNet->theLayers[theNet->numLayers - 1]->nodes[0]->value);
+  return (double) tanh((double) theNet->theLayers[theNet->numLayers - 1]->nodes[0]->value);
 }
 
+double sigmoid(double x)
+{
+  double exp_value;
+  double return_value;
 
+  /*** Exponential calculation ***/
+   exp_value = exp((double) -x);
 
+  /*** Final sigmoid value ***/
+  return_value = 1 / (1 + exp_value);
 
-
-
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return return_value;
+}

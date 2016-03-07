@@ -12,6 +12,8 @@ typedef struct NodeTag
     int numConnects;
     double** weights;
     double value;
+    
+    double onThreshhold;
 } Node;
 
 
@@ -46,6 +48,8 @@ typedef struct NetTag
 {
     Layer** theLayers;
     int numLayers;
+    int score;
+    int numMoves;
 
 } Net;
 
@@ -60,4 +64,5 @@ Net* CopyNet(Net* theNet);
 
 void feedForward(Net* theNet, double** inputs);
 double getNetOutput(Net* theNet);
+double sigmoid(double x);
 #endif

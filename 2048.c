@@ -53,11 +53,38 @@ void InitBoard(GameBoard *theBoard)
             InitGameSquare(&theBoard->board[i][j]);
         }
     }
-
+    theBoard->score = 0;
     SetRandSquareValue(theBoard);
     SetRandSquareValue(theBoard);
 }
 
+void DeconBoard(GameBoard *theBoard)
+{
+    int i = 0;
+    int j = 0;
+
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        free(theBoard->board[i]);
+    }
+    free(theBoard);
+}
+
+void ReInitBoard(GameBoard *theBoard)
+{
+    int i = 0;
+    int j = 0;
+
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for(j = 0; j < BOARDSIZE; j++)
+        {
+            InitGameSquare(&theBoard->board[i][j]);
+        }
+    }
+    theBoard->score = 0;
+    SetRandSquareValue(theBoard);
+}
 void SetSquareValue(GameBoard *theBoard, int value, int x, int y)
 {
     theBoard->board[x][y].value = value;
@@ -87,6 +114,17 @@ void SetRandSquareValue(GameBoard *theBoard)
     }
 }
 
+void MoveBoard(GameBoard *theBoard, double theDir)
+{
+  if( theDir < 0.925)
+    MoveBoardLeft(theBoard);
+  else if (theDir < 0.95)
+    MoveBoardDown(theBoard);
+  else if (theDir < 0.975)
+    MoveBoardRight(theBoard);
+  else if (theDir < 1.0)
+    MoveBoardUp(theBoard);
+}
 
 void MoveBoardLeft(GameBoard *theBoard)
 {
@@ -308,12 +346,27 @@ bool CheckForMove(GameBoard *theBoard)
             if(theBoard->board[i][j].moved)
             {
                 retVal = true;
-                RemoveMovement(&theBoard->board[i][j]);
             }
         }
     }
     return retVal;
 }
+
+void ClearMovement(GameBoard *theBoard)
+{
+    int i = 0;
+    int j = 0;
+    
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+          RemoveMovement(&theBoard->board[i][j]);
+        }
+    }
+}
+
+
 
 
 
@@ -358,7 +411,6 @@ double** getBoardOutput(GameBoard* theBoard)
         }
     }
     counter--;
-    
     double max = *output[0];
 
     for(i = 1; i <= counter; i++)
@@ -368,8 +420,33 @@ double** getBoardOutput(GameBoard* theBoard)
     }
 
     for(i = 0; i <= counter ; i++)
+    {
         *output[i] /= max;
-
+    }
     return output;
 }
-    
+
+void freeBoardOutput(double** output)
+{
+
+    int i = 0;
+    int j = 0;
+    int counter = 0;
+
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+            free(output[counter]);
+            counter++;
+        }
+    }
+    free(output);
+}
+
+
+
+int GetScore(GameBoard* theBoard)
+{
+  return theBoard->score;
+}
