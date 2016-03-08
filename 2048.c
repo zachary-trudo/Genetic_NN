@@ -114,16 +114,18 @@ void SetRandSquareValue(GameBoard *theBoard)
     }
 }
 
-void MoveBoard(GameBoard *theBoard, double theDir)
+void MoveBoard(GameBoard *theBoard, int theDir)
 {
-  if( theDir < 0.925)
-    MoveBoardLeft(theBoard);
-  else if (theDir < 0.95)
-    MoveBoardDown(theBoard);
-  else if (theDir < 0.975)
-    MoveBoardRight(theBoard);
-  else if (theDir < 1.0)
+  if( theDir == 1)
     MoveBoardUp(theBoard);
+  else if (theDir == 2)
+    MoveBoardLeft(theBoard);
+  else if (theDir == 3)
+    MoveBoardDown(theBoard);
+  else if (theDir == 4)
+    MoveBoardRight(theBoard);
+  else
+    printf("Inproper input: %d", theDir);
 }
 
 void MoveBoardLeft(GameBoard *theBoard)
@@ -444,6 +446,26 @@ void freeBoardOutput(double** output)
     free(output);
 }
 
+
+int GetHighestValue(GameBoard* theBoard)
+{
+    int retVal = 0;
+
+    int i = 0;
+    int j = 0;
+    int counter = 0;
+
+    for (i = 0; i < BOARDSIZE; i++)
+    {
+        for (j = 0; j < BOARDSIZE; j++)
+        {
+          if (theBoard->board[i][j].value > retVal)
+            retVal = theBoard->board[i][j].value;
+        }
+    }
+
+    return retVal;
+}
 
 
 int GetScore(GameBoard* theBoard)

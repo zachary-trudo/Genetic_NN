@@ -50,6 +50,7 @@ typedef struct NetTag
     int numLayers;
     int score;
     int numMoves;
+    int highestValue;
 
 } Net;
 
@@ -63,6 +64,6 @@ void NetDecon(Net* theNet);
 Net* CopyNet(Net* theNet);
 
 void feedForward(Net* theNet, double** inputs);
-double getNetOutput(Net* theNet);
+int getNetOutput(Net* theNet);
 double sigmoid(double x);
 #endif

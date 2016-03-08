@@ -166,7 +166,7 @@ Net* NetConWithWeights(int numLayers, int** nodesPerLayer, double**** weights)
         if (i + 1 < numLayers)
             theNet->theLayers[i] = LayerCon(*nodesPerLayer[i], *nodesPerLayer[i + 1], weights[i]);
         else
-            theNet->theLayers[i] = LayerCon(1, 0, weights[i]);
+            theNet->theLayers[i] = LayerCon(*nodesPerLayer[i], 0, weights[i]);
     }
     return theNet;
 }
@@ -178,6 +178,8 @@ void feedForward(Net* theNet, double** inputs)
     int j = 0;
     int k = 0;
     int numConnects = 0;
+    Layer *curLayer, *nextLayer;
+    Node *curNode;
     
     // FIXME: We're assuming that inputs will be the correct number of doubles.
     for(i = 0; i < theNet->theLayers[0]->numNodes; i++)
@@ -185,31 +187,39 @@ void feedForward(Net* theNet, double** inputs)
 
     for(i = 0; i < theNet->numLayers - 1; i++)
     {
-        Layer* curLayer = theNet->theLayers[i];
-        Layer* nextLayer = theNet->theLayers[i + 1];
+        curLayer = theNet->theLayers[i];
+        nextLayer = theNet->theLayers[i + 1];
         for(j = 0; j < nextLayer->numNodes; j++)
           nextLayer->nodes[j]->value = 0;
         for(j = 0; j < curLayer->numNodes; j++)
         {
-            Node* curNode = curLayer->nodes[j];
-            if (curNode->onThreshhold < curNode->value)
+            curNode = curLayer->nodes[j];
+            if (curNode->onThreshhold <= curNode->value)
             {
               numConnects = curNode->numConnects;
-
               for(k = 0; k < numConnects; k++)
-              {
                   nextLayer->nodes[k]->value += (double)curNode->value * (double)*(curNode->weights[k]);
-              }
             }
         }
-//        for(j = 0; j < nextLayer->numNodes; j++)
-//          nextLayer->nodes[j]->value /= numConnects;
+    /*    for(j = 0; j < nextLayer->numNodes; j++)
+          nextLayer->nodes[j]->value /= numConnects;
+    */
     }
 }
 
-double getNetOutput(Net* theNet)
+int getNetOutput(Net* theNet)
 {
-  return (double) tanh((double) theNet->theLayers[theNet->numLayers - 1]->nodes[0]->value);
+  int retVal = 4;
+  double netOut = (double) tanh(theNet->theLayers[theNet->numLayers - 1]->nodes[0]->value);
+
+  if ( netOut < -0.5 )
+    retVal = 1;
+  else if ( netOut < 0 )
+    retVal = 2;
+  else if ( netOut < .5 )
+    retVal = 3;
+  
+  return retVal;
 }
 
 double sigmoid(double x)

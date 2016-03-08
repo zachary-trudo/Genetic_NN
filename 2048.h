@@ -34,7 +34,7 @@ void ReInitBoard(GameBoard *theBoard);
 void SetSquareValue(GameBoard *theBoard, int value, int x, int y);
 void SetRandSquareValue(GameBoard *theBoard);
 
-void MoveBoard(GameBoard *theBoard, double theDir);
+void MoveBoard(GameBoard *theBoard, int theDir);
 
 void MoveBoardLeft(GameBoard *theBoard);
 void MoveBoardRight(GameBoard *theBoard);
@@ -53,4 +53,5 @@ void ClearMovement(GameBoard *theBoard);
 
 void PrintBoard(GameBoard* theBoard);
 double** getBoardOutput(GameBoard* theBoard);
+int getHighestValue(GameBoard* theBoard);
 void freeBoardOutput(double** output);

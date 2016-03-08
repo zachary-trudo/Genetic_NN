@@ -18,8 +18,8 @@ int main(int argc, char* args[])
     double Dir = 0.0;
     int i = 0;
 
-    int   values[] = {16, 4, 1};
-    int   numLayers = 3;
+    int   values[] = {16, 8, 4, 2, 1};
+    int   numLayers = 5;
     int** topology;
 
     topology = (int**) malloc( sizeof(int*) * numLayers);
@@ -61,6 +61,7 @@ int main(int argc, char* args[])
             break;
         }
         theNet->score = GetScore(theBoard);
+        theNet->highestValue = GetHighestValue(theBoard);
         nets[numNets] = theNet;
         netScores[numNets] = GetScore(theBoard);
         numNets++;
@@ -71,25 +72,29 @@ int main(int argc, char* args[])
     int j = 0;
     int k = 0;
     int temp;
-    int min;
-    int max[5] = {0};
-    int maxi[5] = {0};
-    int average = 0;
-    int minI;
+    int minScore, minMoves, minHeight;
+    int maxScore[5] = {0};
+    int maxMoves[5] = {0};
+    int maxHeight[5] = {0};
+    int avgMoves = 0;
+    int avgScore = 0;
+    int avgHeight = 0;
     int generation = 0;    
     int inMax = 0;
     int helper = 0;
     int numMoves = 0;
     double randDir = 0;
     
-    while(max[0] < 60000)
+    while(generation < 50000)
     {
       generation++;
       for (i = 0; i < numNets; i++)
       {
-        if (nets[i]->score > average)
-          MateWeights(nets[i], ChooseNet(nets, MAX_NETS));
+        if (nets[i]->score < avgScore / 4 || nets[i]->numMoves < avgMoves / 4 || nets[i]->highestValue < avgHeight)
+          MateWeights(nets[i], ChooseNet(nets, MAX_NETS, avgScore, avgMoves, avgHeight));
+        
         numMoves = 0;
+        helper = 0;
 
         while (!CheckForLoss(theBoard))
         {
@@ -99,69 +104,148 @@ int main(int argc, char* args[])
           feedForward(nets[i], boardOutput);
           freeBoardOutput(boardOutput);
 
-          if (generation % 250 == 0 && i == 40)
+          if (generation % 250 == 0 && i % 1000 == 0)
           {
+            printf("\n");
             PrintBoard(theBoard);
-            printf("%f - %f\n", nets[i]->theLayers[2]->nodes[0]->value, getNetOutput(nets[i]));
+            temp =  getNetOutput(nets[i]);
+            //temp = rand () % 4 + 1;
+            switch(temp)
+            {
+              case 1:
+                printf("Up");
+                break;
+              case 2:
+                printf("Left");
+                break;
+              case 3:
+                printf("Down");
+                break;
+              case 4:
+                printf("Right");
+                break;
+              default:
+                break;
+            }
+            printf("\n\n");
           }
           
           MoveBoard(theBoard, getNetOutput(nets[i]));
 
-          if(!CheckForMove(theBoard))
+          if(!CheckForMove(theBoard) && helper < 10)
           {
-            break;
+            temp = 0;
+            while(!CheckForMove(theBoard) && temp < 10)
+            {
+              MoveBoard(theBoard, rand() % 4 + 1);
+              temp++;
+            }
+            helper++;
           }
+          
+          if(!CheckForMove(theBoard))
+            break;
 
           numMoves++;
 
         }
+        nets[i]->highestValue = GetHighestValue(theBoard);
         nets[i]->score = GetScore(theBoard);
         nets[i]->numMoves = numMoves;
         ReInitBoard(theBoard);
       }
 
       
-      if (generation % 50 == 0)
+      if (generation % 1 == 0)
       {
-        average = 0;
+        avgMoves = 0;
+        avgScore = 0;
+        avgHeight = 0;
         for (k = 0; k < 5; k++)
         {
-          max[k] = 0;
-          maxi[k] = 0;        
+          maxScore[k] = 0;
+          maxHeight[k] = 0;
+          maxMoves[k] = 0;
         }
-        min = 0;
+
+        minScore = 0;
+        minHeight = 0;
+        minMoves = 0;
         
         for (k = 0; k < MAX_NETS; k++)
         {
-          average += nets[k]->score;
-          if (nets[k]->score > min)
+          avgMoves += nets[k]->numMoves;
+          avgScore += nets[k]->score;
+          avgHeight += nets[k]->highestValue;
+
+
+
+          if (nets[k]->score > minScore)
           {
-            min = nets[k]->score;
-            minI = k;
+            minScore = nets[k]->score;
             for (j = 0; j < 5; j++)
             {
-              if ( min > max[j] )
+              if ( minScore > maxScore[j] )
               {
-                temp = max[j];
-                max[j] = min;
-                min = temp;
+                temp = maxScore[j];
+                maxScore[j] = minScore;
+                minScore = temp;
+              }
+            }
+          }
 
-                temp = maxi[j];
-                maxi[j] = minI;
-                minI = temp;
+          if (nets[k]->highestValue > minHeight)
+          {
+            minHeight = nets[k]->highestValue;
+            for (j = 0; j < 5; j++)
+            {
+              if ( minHeight > maxHeight[j] )
+              {
+                temp = maxHeight[j];
+                maxHeight[j] = minHeight;
+                minHeight = temp;
+              }
+            }
+          }
+
+          if (nets[k]->numMoves > minMoves)
+          {
+            minMoves = nets[k]->numMoves;
+            for (j = 0; j < 5; j++)
+            {
+              if ( minMoves > maxMoves[j] )
+              {
+                temp = maxMoves[j];
+                maxMoves[j] = minMoves;
+                minMoves = temp;
               }
             }
           }
         }
+        avgMoves /= numNets;
+        avgScore /= numNets;
+        avgHeight /= numNets;
 
 
         printf("Generation: %i\n", generation);
         printf("First Net Score: %i\n", nets[0]->score); 
+        
         printf("Max Scores:");
         for (k = 0; k < 5; k++)
-          printf(" %i - ", max[k]);
+          printf(" %i - ", maxScore[k]);
         printf("\n");
-        printf("Average: %i\n", average/numNets);
+
+        printf("Max Moves:");
+        for (k = 0; k < 5; k++)
+          printf(" %i - ", maxMoves[k]);
+        printf("\n");
+        
+        printf("Max Height:");
+        for (k = 0; k < 5; k++)
+          printf(" %i - ", maxHeight[k]);
+        printf("\n");
+
+        printf("Average Moves: %i --- Average Score: %i --- Average Height: %i\n", avgMoves, avgScore, avgHeight);
       }
   }
 
