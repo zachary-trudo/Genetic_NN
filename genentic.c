@@ -12,7 +12,7 @@ Net* ChooseNet(Net* nets[], int numNets, int avgScore, int avgMove, int avgHeigh
   int chosenHeight = 0;
   Net *net;
 
-  while (chosenHeight < avgHeight )
+  while (chosenMove < avgMove )
   {
     for (i = 0; i < numNets; i++)
     {

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <time.h>
 
 
@@ -11,6 +12,8 @@
 
 int main(int argc, char* args[])
 {
+    FILE *fp = fopen("MLOut", "w");
+    dup2(fileno(fp), STDOUT_FILENO);
     double** boardOutput;
     time_t t;
     srand((unsigned) time(&t));
@@ -68,7 +71,6 @@ int main(int argc, char* args[])
         theNet = NetCon(numLayers, topology);
         ReInitBoard(theBoard);
     }
-    
     int j = 0;
     int k = 0;
     int temp;
@@ -85,12 +87,12 @@ int main(int argc, char* args[])
     int numMoves = 0;
     double randDir = 0;
     
-    while(generation < 50000)
+    while(generation < 5000)
     {
       generation++;
       for (i = 0; i < numNets; i++)
       {
-        if (nets[i]->score < avgScore / 4 || nets[i]->numMoves < avgMoves / 4 || nets[i]->highestValue < avgHeight)
+        if (nets[i]->numMoves < avgHeight )
           MateWeights(nets[i], ChooseNet(nets, MAX_NETS, avgScore, avgMoves, avgHeight));
         
         numMoves = 0;
@@ -103,13 +105,15 @@ int main(int argc, char* args[])
           boardOutput = getBoardOutput(theBoard); 
           feedForward(nets[i], boardOutput);
           freeBoardOutput(boardOutput);
-
+          //temp = rand () % 4 + 1;
+          MoveBoard(theBoard, getNetOutput(nets[i]));
+/*
           if (generation % 250 == 0 && i % 1000 == 0)
           {
-            printf("\n");
-            PrintBoard(theBoard);
-            temp =  getNetOutput(nets[i]);
-            //temp = rand () % 4 + 1;
+            //printf("\n");
+            //PrintBoard(theBoard);
+            //temp =  getNetOutput(nets[i]);
+            temp = rand () % 4 + 1;
             switch(temp)
             {
               case 1:
@@ -129,10 +133,10 @@ int main(int argc, char* args[])
             }
             printf("\n\n");
           }
-          
-          MoveBoard(theBoard, getNetOutput(nets[i]));
+*/
+          //MoveBoard(theBoard, getNetOutput(nets[i]));
 
-          if(!CheckForMove(theBoard) && helper < 10)
+          if(!CheckForMove(theBoard) && helper < 0)
           {
             temp = 0;
             while(!CheckForMove(theBoard) && temp < 10)
@@ -227,26 +231,32 @@ int main(int argc, char* args[])
         avgHeight /= numNets;
 
 
-        printf("Generation: %i\n", generation);
-        printf("First Net Score: %i\n", nets[0]->score); 
+        //printf("Generation: %i\n", generation);
+        printf("%i,", generation);
+        //printf("First Net Score: %i\n", nets[0]->score); 
         
-        printf("Max Scores:");
+    //    printf("Max Scores:");
         for (k = 0; k < 5; k++)
-          printf(" %i - ", maxScore[k]);
-        printf("\n");
+          printf("%i,", maxScore[k]);
+//          printf(" %i - ", maxScore[k]);
+  //      printf("\n");
 
-        printf("Max Moves:");
+      //  printf("Max Moves:");
         for (k = 0; k < 5; k++)
-          printf(" %i - ", maxMoves[k]);
-        printf("\n");
+          printf("%i,", maxMoves[k]);
+//          printf(" %i - ", maxMoves[k]);
+//        printf("\n");
         
-        printf("Max Height:");
+//        printf("Max Height:");
         for (k = 0; k < 5; k++)
-          printf(" %i - ", maxHeight[k]);
-        printf("\n");
+          printf("%i,", maxHeight[k]);
+//          printf(" %i - ", maxHeight[k]);
+//        printf("\n");
 
-        printf("Average Moves: %i --- Average Score: %i --- Average Height: %i\n", avgMoves, avgScore, avgHeight);
+  //      printf("Average Moves: %i --- Average Score: %i --- Average Height: %i\n", avgMoves, avgScore, avgHeight);
+          printf("%i,%i,%i\n", avgMoves, avgScore, avgHeight);
       }
   }
+  fclose(fp); 
 
 }

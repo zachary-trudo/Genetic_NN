@@ -194,12 +194,12 @@ void feedForward(Net* theNet, double** inputs)
         for(j = 0; j < curLayer->numNodes; j++)
         {
             curNode = curLayer->nodes[j];
-            if (curNode->onThreshhold <= curNode->value)
-            {
+            //if (curNode->onThreshhold <= curNode->value)
+            //{
               numConnects = curNode->numConnects;
               for(k = 0; k < numConnects; k++)
                   nextLayer->nodes[k]->value += (double)curNode->value * (double)*(curNode->weights[k]);
-            }
+            //}
         }
     /*    for(j = 0; j < nextLayer->numNodes; j++)
           nextLayer->nodes[j]->value /= numConnects;
