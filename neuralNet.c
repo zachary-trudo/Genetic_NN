@@ -194,16 +194,10 @@ void feedForward(Net* theNet, double** inputs)
         for(j = 0; j < curLayer->numNodes; j++)
         {
             curNode = curLayer->nodes[j];
-            //if (curNode->onThreshhold <= curNode->value)
-            //{
               numConnects = curNode->numConnects;
               for(k = 0; k < numConnects; k++)
                   nextLayer->nodes[k]->value += (double)curNode->value * (double)*(curNode->weights[k]);
-            //}
         }
-    /*    for(j = 0; j < nextLayer->numNodes; j++)
-          nextLayer->nodes[j]->value /= numConnects;
-    */
     }
 }
 
@@ -220,18 +214,4 @@ int getNetOutput(Net* theNet)
     retVal = 3;
   
   return retVal;
-}
-
-double sigmoid(double x)
-{
-  double exp_value;
-  double return_value;
-
-  /*** Exponential calculation ***/
-   exp_value = exp((double) -x);
-
-  /*** Final sigmoid value ***/
-  return_value = 1 / (1 + exp_value);
-
-  return return_value;
 }
